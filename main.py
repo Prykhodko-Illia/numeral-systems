@@ -1,77 +1,60 @@
 systems_size = "0123456789ABCDEF"
 
-def decimal_to_binary(number: int) -> str:
-    output = ""
-    while number != 1:
-        output += str(number % 2)
-        number = number // 2
-    output += str(number % 2)
-    return "0b" + str(output[::-1])
-
-def decimal_to_hexadecimal(number: int) -> str:
-    output = ""
-    while number >= 16:
-        output += systems_size[number % 16]
-        number = number // 16
-    output += systems_size[number % 16]
-    return "0x" + str(output[::-1])
-
 def decimal_to_any(number: int, size: int) -> str:
-    if size < 2 or size > len(systems_size):
-        return "Please enter a size from 2-16"
     output = ""
     while number >= size:
         output += systems_size[number % size]
         number = number // size
     output += systems_size[number % size]
-    return str(output[::-1]) + f"x{size}"
+    if size == 2: return f"0b{output[::-1]}"
+    if size == 16: return f"0x{output[::-1]}"
+    return f"{output[::-1]}x{size}"
 
-def any_to_decimal(any: str) -> int:
+def any_to_decimal(anything: str, size: str) -> int:
     output = 0
-    any = any.split("x")
-    any[0] = any[0][::-1]
-    for i in range(len(any[0])):
-        output += systems_size.index(any[0][i]) * int(any[1]) ** i
+    anything = anything[::-1]
+    for i in range(len(anything)):
+        output += systems_size.index(anything[i]) * int(size) ** i
     return output
 
-def binary_to_decimal(binary: str) -> str:
-    output = 0
-    binary = binary[::-1]
-    for i in range(len(binary)):
-        if binary[i] == '1':
-            output += 2**i
-    return str(output)
+def check_number(number: str):
+    if number.isdecimal():
+        size = input("\nPlease enter a size from 2-16 of numeral system:\n"
+                     ">>> ")
+        while not size.isdecimal() or not (2 <= int(size) <= len(systems_size)):
+            print("Invalid size")
+            size = input("\nPlease enter a size from 2-16 of numeral system:\n"
+                         ">>> ")
+        return decimal_to_any(int(number), int(size))
 
-def hexadecimal_to_decimal(hexadecimal: str) -> str:
-    output = 0
-    hexadecimal = hexadecimal[::-1]
-    for i in range(len(hexadecimal)):
-        output += systems_size.index(hexadecimal[i]) * 16 ** i
-    return str(output)
+    if number[:2] == "0b" and len(number[2:]) == len([x for x in number[2:] if x in systems_size[:2]]):
+        return any_to_decimal(number[2:], "2")
 
-def cycle(option:str , number: str) ->str:
-    if option == "1":
-        return decimal_to_binary(int(number))
-    if option == "2":
-        return decimal_to_hexadecimal(int(number))
-    if option == "3":
-        return binary_to_decimal(number)
-    if option == "4":
-        return hexadecimal_to_decimal(number)
+    if number[:2] == "0x" and len(number[2:]) == len([x for x in number[2:] if x in systems_size]):
+        return any_to_decimal(number[2:], "16")
 
-while True:
-    option = input("Choose an option you want to do:\n"
-                   "1. Decimal to binary\n"
-                   "2. Decimal to hexadecimal\n"
-                   "3. Decimal to any\n"
-                   "4. Binary to decimal\n"
-                   "5. Hexadecimal to decimal\n"
-                   "6. Any to decimal\n"
-                   "7. Exit\n"
-                   ">>> ")  
-    if option == '7':
-        print("Thanks for using")
-        break
-    inp = input("Please enter a number in the system you chosen: ")
+    if (("x" in number[-2:] and number[-1] in systems_size and len(number[:-2]) == len([x for x in number[:-2] if x in systems_size[:int(number[-1])]]))
+            or ("x" in number[-3:] and int(number[-2]) <= len(systems_size) and len(number[:-3]) == len([x for x in number[:-3] if x in systems_size[:int(number[-2:])]]))):
+        return any_to_decimal(number.split("x")[0], number.split("x")[1])
 
-    print(cycle(option, inp))
+    number = input("\nPlease enter a valid number:\n"
+                   ">>> ")
+    return check_number(number)
+
+def cycle():
+    while True:
+        option = input("\nChoose an option you want to do:\n"
+                       "1. Convert\n"
+                       "2. Exit\n"
+                       ">>> ")
+        if option.lower() == "convert" or option.lower() == "1":
+            inp = input("\nPlease enter a number:\n"
+                        ">>> ")
+            print(check_number(inp))
+        elif option == "2" or option.lower() == "exit":
+            print("Thanks for using!")
+            break
+        else:
+            print("Please enter a valid option")
+
+cycle()
