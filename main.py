@@ -17,7 +17,7 @@ def any_to_decimal(anything: str, size: str) -> int:
         output += systems_size.index(anything[i]) * int(size) ** i
     return output
 
-def check_number(number: str):
+def check_number(number: str) -> str or int:
     if number.isdecimal():
         size = input("\nPlease enter a size from 2-16 of numeral system:\n"
                      ">>> ")
@@ -33,15 +33,18 @@ def check_number(number: str):
     if number[:2] == "0x" and len(number[2:]) == len([x for x in number[2:] if x in systems_size]):
         return any_to_decimal(number[2:], "16")
 
-    if (("x" in number[-2:] and number[-1] in systems_size and len(number[:-2]) == len([x for x in number[:-2] if x in systems_size[:int(number[-1])]]))
-            or ("x" in number[-3:] and int(number[-2]) <= len(systems_size) and len(number[:-3]) == len([x for x in number[:-3] if x in systems_size[:int(number[-2:])]]))):
+    if (("x" in number[-2:] and number[-1] in systems_size
+         and len(number[:-2]) == len([x for x in number[:-2] if x in systems_size[:int(number[-1])]]))
+            or ("x" in number[-3:] and int(number[-2]) <= len(systems_size)
+                and len(number[:-3]) == len([x for x in number[:-3] if x in systems_size[:int(number[-2:])]]))):
+
         return any_to_decimal(number.split("x")[0], number.split("x")[1])
 
     number = input("\nPlease enter a valid number:\n"
                    ">>> ")
     return check_number(number)
 
-def cycle():
+def cycle() -> None:
     while True:
         option = input("\nChoose an option you want to do:\n"
                        "1. Convert\n"
